@@ -17,12 +17,13 @@
 ## specific language governing permissions and limitations
 ## under the License.
 ##
+export CLASSPATH=${CLASSPATH}:$(${HADOOP_HOME}/bin/hadoop classpath --glob)
 
-mysql_conn=$1
+if [ "$1" = "aiflow-master" ]; then
+    start_aiflow.py > /var/log/aiflow_master.log 2>&1 &
+    echo $! > tmp/master_server.pid
+    shift
+    exec "$@"
+fi
 
-# start ai_flow server and Apache Airflow
-start-aiflow.sh $mysql_conn
-sleep 3
-
-
-exec "/bin/bash"
+exec "$@"

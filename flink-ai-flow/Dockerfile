@@ -61,6 +61,8 @@ RUN set -ex \
         rsync \
         netcat \
         locales \
+        unzip \
+        wget \
     && sed -i 's/^# en_US.UTF-8 UTF-8$/en_US.UTF-8 UTF-8/g' /etc/locale.gen \
     && locale-gen \
     && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
@@ -113,6 +115,33 @@ RUN pip install lib/notification_service
 RUN pip install lib/airflow
 RUN pip install .
 
+RUN wget https://archive.apache.org/dist/flink/flink-1.11.3/flink-1.11.3-bin-scala_2.11.tgz \
+    && tar -xvzf flink-1.11.3-bin-scala_2.11.tgz \
+    && mv flink-1.11.3 /flink \
+    && rm -f flink-1.11.3-bin-scala_2.11.tgz
+
+ARG flink_ml_jar=https://ai-flow-packages.oss-cn-hangzhou.aliyuncs.com/flink-ai-extended/flink-ml-dist-0.3.0.jar
+RUN wget -q $flink_ml_jar -O /flink/lib/flink-ml-dist-0.2.2.jar
+
+RUN python -m pip install --no-cache-dir \
+        https://ai-flow-packages.oss-cn-hangzhou.aliyuncs.com/flink-ai-extended/0.2.2/flink_ml_framework-0.2.2-cp37-cp37m-linux_x86_64.whl \
+        https://ai-flow-packages.oss-cn-hangzhou.aliyuncs.com/flink-ai-extended/0.2.2/flink_ml_tensorflow-0.2.2-cp37-cp37m-linux_x86_64.whl
+
+RUN wget https://ai-flow-packages.oss-cn-hangzhou.aliyuncs.com/hadoop-2.7.7.tar.gz \
+         && tar -zxvf hadoop-2.7.7.tar.gz \
+         && mv hadoop-2.7.7 /hadoop \
+         && rm -f hadoop-2.7.7.tar.gz
+
+ENV HADOOP_HDFS_HOME=/hadoop
+ENV HADOOP_HOME=/hadoop
+ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${JAVA_HOME}/jre/lib/amd64/server:${HADOOP_HDFS_HOME}/lib/native
+
+
+RUN mkdir -p /usr/share/man/man1 && \
+    apt-get install -y default-jdk
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+ENV PATH=/flink/bin:$PATH
+
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod 755 /entrypoint.sh
 
@@ -124,4 +153,4 @@ USER root
 WORKDIR ${AIRFLOW_USER_HOME}
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["mysql://user:password@127.0.0.1/airflow"]
+CMD [ ]
