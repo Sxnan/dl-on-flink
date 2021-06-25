@@ -152,7 +152,7 @@ public class NodeServer implements Runnable {
 							try {
 								FileUtil.downLoadZipToLocal(workDir, codeFile, codeDirName);
 							} catch (IOException e) {
-								e.printStackTrace();
+								LOG.error("Fail to download zip {} to local {}", codeFile, workDir);
 								throw new RuntimeException(e);
 							}
 						} else {
