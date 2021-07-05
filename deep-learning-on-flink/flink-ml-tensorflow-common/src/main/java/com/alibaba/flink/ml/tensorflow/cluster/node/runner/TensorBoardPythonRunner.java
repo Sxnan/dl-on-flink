@@ -23,6 +23,7 @@ import com.alibaba.flink.ml.cluster.node.runner.python.ProcessPythonRunner;
 import com.alibaba.flink.ml.tensorflow.util.TFConstants;
 import com.alibaba.flink.ml.util.IpHostUtil;
 import com.alibaba.flink.ml.util.MLConstants;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,5 +70,10 @@ public class TensorBoardPythonRunner extends ProcessPythonRunner {
 		buildProcessBuilder(builder);
 		LOG.info("{} Python cmd: {}", mlContext.getIdentity(), Joiner.on(" ").join(args));
 		runProcess(builder);
+	}
+
+	@VisibleForTesting
+	public void runProcess(ProcessBuilder builder) throws IOException {
+		super.runProcess(builder);
 	}
 }

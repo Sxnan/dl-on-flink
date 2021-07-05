@@ -21,6 +21,7 @@ package com.alibaba.flink.ml.tensorflow.cluster.node.runner;
 import com.alibaba.flink.ml.cluster.node.MLContext;
 import com.alibaba.flink.ml.cluster.node.runner.CommonMLRunner;
 import com.alibaba.flink.ml.cluster.role.WorkerRole;
+import com.alibaba.flink.ml.cluster.rpc.AMClient;
 import com.alibaba.flink.ml.cluster.rpc.NodeServer;
 import com.alibaba.flink.ml.proto.ContextProto;
 import com.alibaba.flink.ml.proto.NodeSpec;
@@ -29,11 +30,13 @@ import com.alibaba.flink.ml.tensorflow.cluster.TensorBoardRole;
 import com.alibaba.flink.ml.tensorflow.util.TFConstants;
 import com.alibaba.flink.ml.util.IpHostUtil;
 import com.alibaba.flink.ml.util.MLConstants;
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.ServerSocket;
+import java.util.concurrent.Future;
 
 /**
  * tensorflow machine learning runner.
@@ -137,4 +140,20 @@ public class TFMLRunner extends CommonMLRunner {
 		}
 		super.stopExecution(success);
 	}
+
+	@VisibleForTesting
+	AMClient getAMClient() {
+		return amClient;
+	}
+
+	@VisibleForTesting
+	long getVersion() {
+		return version;
+	}
+
+	@VisibleForTesting
+	MLContext getMLContext() {
+		return mlContext;
+	}
+
 }

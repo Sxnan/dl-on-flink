@@ -30,6 +30,7 @@ import com.alibaba.flink.ml.operator.util.ColumnInfos;
 import com.alibaba.flink.ml.operator.util.PythonFileUtil;
 import com.alibaba.flink.ml.cluster.role.AMRole;
 import com.alibaba.flink.ml.cluster.role.BaseRole;
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.flink.api.common.io.DefaultInputSplitAssigner;
 import org.apache.flink.api.common.io.RichInputFormat;
 import org.apache.flink.api.common.io.statistics.BaseStatistics;
@@ -200,5 +201,15 @@ public class MLInputFormat<OUT> extends RichInputFormat<OUT, MLInputSplit> {
 				throw new IOException(e);
 			}
 		}
+	}
+
+	@VisibleForTesting
+	public MLConfig getMlConfig() {
+		return mlConfig;
+	}
+
+	@VisibleForTesting
+	public BaseRole getRole() {
+		return role;
 	}
 }
