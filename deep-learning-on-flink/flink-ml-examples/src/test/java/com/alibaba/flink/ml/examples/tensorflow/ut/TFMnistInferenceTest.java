@@ -135,7 +135,7 @@ public class TFMnistInferenceTest {
 		streamEnv.execute();
 	}
 
-	protected static void setExampleCodingType(TFConfig config) {
+	protected static void setExampleCodingTypeWithPojoOut(TFConfig config) {
 		String[] names = { "image_raw", "label" };
 		com.alibaba.flink.ml.operator.util.DataTypes[] types = { com.alibaba.flink.ml.operator.util.DataTypes.STRING,
 				com.alibaba.flink.ml.operator.util.DataTypes.INT_32 };
@@ -153,6 +153,24 @@ public class TFMnistInferenceTest {
 		config.getProperties().put(MLConstants.DECODING_CLASS, ExampleCoding.class.getCanonicalName());
 	}
 
+	protected static void setExampleCodingTypeWithRowOut(TFConfig config) {
+		String[] names = { "image_raw", "label" };
+		com.alibaba.flink.ml.operator.util.DataTypes[] types = { com.alibaba.flink.ml.operator.util.DataTypes.STRING,
+				com.alibaba.flink.ml.operator.util.DataTypes.INT_32 };
+		String str = ExampleCodingConfig.createExampleConfigStr(names, types,
+				ExampleCodingConfig.ObjectType.ROW, MnistTFRPojo.class);
+		config.getProperties().put(TFConstants.INPUT_TF_EXAMPLE_CONFIG, str);
+
+		String[] namesOutput = { "predict_label", "label_org" };
+		com.alibaba.flink.ml.operator.util.DataTypes[] typesOutput = { com.alibaba.flink.ml.operator.util.DataTypes.INT_32,
+				com.alibaba.flink.ml.operator.util.DataTypes.INT_32 };
+		String strOutput = ExampleCodingConfig.createExampleConfigStr(namesOutput, typesOutput,
+				ExampleCodingConfig.ObjectType.ROW, InferenceOutPojo.class);
+		config.getProperties().put(TFConstants.OUTPUT_TF_EXAMPLE_CONFIG, strOutput);
+		config.getProperties().put(MLConstants.ENCODING_CLASS, ExampleCoding.class.getCanonicalName());
+		config.getProperties().put(MLConstants.DECODING_CLASS, ExampleCoding.class.getCanonicalName());
+	}
+
 	@Test
 	public void inferenceDataStreamWithInput() throws Exception {
 		System.out.println("Run Test: " + SysUtil._FUNC_());
@@ -163,7 +181,7 @@ public class TFMnistInferenceTest {
 		TFConfig tfConfig = buildTFConfig(mnist_inference_with_input);
 		tfConfig.setWorkerNum(paths.length);
 		tfConfig.setPsNum(0);
-		setExampleCodingType(tfConfig);
+		setExampleCodingTypeWithPojoOut(tfConfig);
 		DataStream<InferenceOutPojo> outDS = TFUtils.inference(flinkEnv, inputDS, tfConfig, InferenceOutPojo.class);
 		outDS.addSink(new LogSink<>()).setParallelism(tfConfig.getWorkerNum());
 		flinkEnv.execute();
@@ -184,7 +202,7 @@ public class TFMnistInferenceTest {
 		TFConfig config = buildTFConfig(mnist_inference_with_input);
 		config.setPsNum(0);
 		config.setWorkerNum(3);
-		setExampleCodingType(config);
+		setExampleCodingTypeWithRowOut(config);
 		//create input table
 		String[] paths = new String[1];
 		paths[0] = testDataPath + "/0.tfrecords";
