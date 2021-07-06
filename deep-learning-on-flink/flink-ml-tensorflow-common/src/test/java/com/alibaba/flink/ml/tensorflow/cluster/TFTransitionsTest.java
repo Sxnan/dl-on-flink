@@ -5,7 +5,7 @@ import com.alibaba.flink.ml.cluster.master.AMEvent;
 import com.alibaba.flink.ml.cluster.master.AMEventType;
 import com.alibaba.flink.ml.cluster.master.meta.AMMeta;
 import com.alibaba.flink.ml.cluster.node.MLContext;
-import com.alibaba.flink.ml.cluster.rpc.AppMasterServer;
+import com.alibaba.flink.ml.cluster.rpc.AppMasterServiceImpl;
 import com.alibaba.flink.ml.cluster.statemachine.InvalidStateTransitionException;
 import com.alibaba.flink.ml.proto.AMStatus;
 import com.alibaba.flink.ml.proto.FinishNodeRequest;
@@ -35,7 +35,7 @@ public class TFTransitionsTest {
 		mlContext = Mockito.spy(DummyContext.createDummyMLContext());
 		amMeta = Mockito.mock(AMMeta.class);
 
-		stateMachine = new TFAMStateMachineImpl(Mockito.mock(AppMasterServer.AppMasterServiceImpl.class),
+		stateMachine = new TFAMStateMachineImpl(Mockito.mock(AppMasterServiceImpl.class),
 				amMeta, mlContext, Mockito.mock(BaseEventReporter.class));
 		stateMachine.sendEvent(new AMEvent(AMEventType.INTI_AM_STATE, null, 0));
 		waitUntilState(AMStatus.AM_INIT);
