@@ -35,7 +35,6 @@ import lazy_object_proxy
 import nvd3
 import sqlalchemy as sqla
 import yaml
-from airflow.contrib.jobs.scheduler_factory import SchedulerFactory
 from flask import (
     Markup,
     Response,
@@ -67,6 +66,7 @@ from wtforms import SelectField, validators
 from wtforms.validators import InputRequired
 
 import airflow
+from ai_flow.client.ai_flow_client import AIFlowClient
 from airflow import models, plugins_manager, settings
 from airflow.api.common.experimental.mark_tasks import (
     set_dag_run_state_to_failed,
@@ -428,11 +428,10 @@ class AirflowBaseView(BaseView):  # noqa: D101
     }
 
     def render_template(self, *args, **kwargs):
-        scheduler_class = SchedulerFactory.get_default_scheduler()
         return super().render_template(
             *args,
             # Cache this at most once per request, not for the lifetime of the view instance
-            scheduler_job=lazy_object_proxy.Proxy(scheduler_class.most_recent_job),
+            scheduler_job=lazy_object_proxy.Proxy(SchedulerJob.most_recent_job),
             **kwargs,
         )
 
@@ -440,11 +439,12 @@ class AirflowBaseView(BaseView):  # noqa: D101
 class Airflow(AirflowBaseView):  # noqa: D101  pylint: disable=too-many-public-methods
     """Main Airflow application."""
 
-    def __init__(self, server_uri=None, **kwargs):
+    def __init__(self, server_uri=None, ai_flow_server_uri=None, **kwargs):
         super().__init__(**kwargs)
         if server_uri:
             self.notification_client: NotificationClient = NotificationClient(server_uri, SCHEDULER_NAMESPACE)
             self.scheduler_client: EventSchedulerClient = EventSchedulerClient(ns_client=self.notification_client)
+            self.aiflow_client: AIFlowClient = AIFlowClient(server_uri=ai_flow_server_uri)
 
     @expose('/health')
     def health(self):
@@ -458,8 +458,7 @@ class Airflow(AirflowBaseView):  # noqa: D101  pylint: disable=too-many-public-m
         scheduler_status = 'unhealthy'
         payload['metadatabase'] = {'status': 'healthy'}
         try:
-            scheduler_class = SchedulerFactory.get_default_scheduler()
-            scheduler_job = scheduler_class.most_recent_job()
+            scheduler_job = SchedulerJob.most_recent_job()
 
             if scheduler_job:
                 latest_scheduler_heartbeat = scheduler_job.latest_heartbeat.isoformat()
@@ -2182,6 +2181,8 @@ class Airflow(AirflowBaseView):  # noqa: D101  pylint: disable=too-many-public-m
                 'task_type': t.task_type,
                 'extra_links': t.extra_links,
             }
+            if t.task_id in task_instances:
+                task_instances[t.task_id].update({'execution_label': 'Back Pressure'})
             if t.task_id in task_instances and t.executor_config is not None and 'periodic_config' in t.executor_config:
                 task_instances[t.task_id].update({'periodic_config': t.executor_config['periodic_config']})
             if t.get_subscribed_events():
@@ -2781,6 +2782,10 @@ class Airflow(AirflowBaseView):  # noqa: D101  pylint: disable=too-many-public-m
 
         events: Dict[str, Tuple[str, str, str]] = {}
         for t in dag.tasks:
+            if t.task_id in task_instances:
+                task_instances[t.task_id].update({'execution_label': 'Back Pressure'})
+            if t.task_id in task_instances and t.executor_config is not None and 'periodic_config' in t.executor_config:
+                task_instances[t.task_id].update({'periodic_config': t.executor_config['periodic_config']})
             if t.get_subscribed_events():
                 for event_namespace, event_key, event_type, from_task_id in BaseSerialization._deserialize(
                         t.get_subscribed_events()):
