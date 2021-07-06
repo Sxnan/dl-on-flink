@@ -16,15 +16,14 @@
  * limitations under the License.
  */
 
-package com.alibaba.flink.ml.tensorflow.io;
-
-import org.apache.flink.api.common.io.RichOutputFormat;
-import org.apache.flink.configuration.Configuration;
+package com.alibaba.flink.ml.examples.tensorflow.ut;
 
 import com.alibaba.flink.ml.util.ProtoUtil;
+import org.apache.flink.api.common.io.RichOutputFormat;
+import org.apache.flink.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tensorflow.example.Example;
+import org.tensorflow.proto.example.Example;
 
 import java.io.IOException;
 

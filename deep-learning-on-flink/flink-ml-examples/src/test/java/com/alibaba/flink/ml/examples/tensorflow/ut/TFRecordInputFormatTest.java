@@ -23,7 +23,6 @@ import com.alibaba.flink.ml.examples.tensorflow.mnist.MnistDataUtil;
 import com.alibaba.flink.ml.tensorflow.io.TFRecordInputFormat;
 import com.alibaba.flink.ml.tensorflow.io.TFRecordInputSplit;
 import com.alibaba.flink.ml.tensorflow.io.TFRecordSource;
-import com.alibaba.flink.ml.tensorflow.io.TraceTFRecordOutputFormat;
 import com.alibaba.flink.ml.util.SysUtil;
 
 import org.apache.flink.api.common.io.InputFormat;

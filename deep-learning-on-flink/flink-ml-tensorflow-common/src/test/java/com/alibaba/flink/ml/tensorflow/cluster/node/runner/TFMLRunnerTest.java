@@ -22,8 +22,8 @@ import java.util.concurrent.FutureTask;
 import static org.junit.Assert.*;
 
 public class TFMLRunnerTest {
-	private static FutureTask<Void> amFuture;
-	private static AppMasterServer amServer;
+	private FutureTask<Void> amFuture;
+	private AppMasterServer amServer;
 
 	private TFMLRunner mlRunner;
 	private NodeServer nodeServer;
@@ -83,7 +83,7 @@ public class TFMLRunnerTest {
 		Mockito.verify(mlRunner).runScript();
 	}
 
-	private static FutureTask<Void> startAMServer(MLConfig mlConfig) throws MLException {
+	private FutureTask<Void> startAMServer(MLConfig mlConfig) throws MLException {
 		MLContext amContext = new MLContext(ExecutionMode.TRAIN, mlConfig, new AMRole().name(), 0, null, null);
 		amServer = new AppMasterServer(amContext);
 		amFuture = new FutureTask<>(amServer, null);
