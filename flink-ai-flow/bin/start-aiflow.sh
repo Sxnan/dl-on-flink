@@ -43,6 +43,7 @@ if [[ ! -f "${AIRFLOW_HOME}/airflow.cfg" ]] ; then
         gsub(\"executor = SequentialExecutor\", \"executor = LocalExecutor\"); \
         gsub(\"dags_are_paused_at_creation = True\", \"dags_are_paused_at_creation = False\"); \
         gsub(\"# mp_start_method =\", \"mp_start_method = forkserver\"); \
+        gsub(\"# scheduler =\", \"scheduler = EventBasedSchedulerJob\"); \
         gsub(\"execute_tasks_new_python_interpreter = False\", \"execute_tasks_new_python_interpreter = True\"); \
         gsub(\"min_serialized_dag_update_interval = 30\", \"min_serialized_dag_update_interval = 0\"); \
         print \$0}" airflow.cfg.tmpl > airflow.cfg
@@ -84,7 +85,7 @@ start_aiflow.py > ${AIFLOW_LOG_DIR}/master_server.log 2>&1 &
 echo $! > ${AIFLOW_PID_DIR}/master_server.pid
 
 # start airflow scheduler and web server
-airflow event_scheduler --subdir=${AIRFLOW_DEPLOY_PATH} > ${AIFLOW_LOG_DIR}/scheduler.log 2>&1 &
+airflow scheduler --subdir=${AIRFLOW_DEPLOY_PATH} > ${AIFLOW_LOG_DIR}/scheduler.log 2>&1 &
 echo $! > ${AIFLOW_PID_DIR}/scheduler.pid
 airflow webserver -p 8080 > ${AIFLOW_LOG_DIR}/web.log 2>&1 &
 echo $! > ${AIFLOW_PID_DIR}/web.pid

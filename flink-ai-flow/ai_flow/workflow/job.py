@@ -16,32 +16,46 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import Text
-from ai_flow.graph.node import BaseNode
-from ai_flow.workflow.job_context import JobContext
-from ai_flow.meta.job_meta import State
-from ai_flow.workflow.job_config import BaseJobConfig
+from typing import Text, List
+
+from ai_flow.meta.dataset_meta import DatasetMeta
+
+from ai_flow.graph.node import Node
+from ai_flow.workflow.job_config import JobConfig
 
 
-class BaseJob(BaseNode):
+class Job(Node):
     """
-    A BaseJob contains the common information of a ai flow job. Users can implement custom jobs by adding other
-    execution information for a specific engine and platform.
+    A job is a description of an executable job, including job configuration files, job type and other information.
     """
-    def __init__(self, job_context: JobContext, job_config: BaseJobConfig) -> None:
+    def __init__(self,
+                 job_config: JobConfig) -> None:
         """
-
-        :param job_context: Job runtime context
-        :param job_config: Job configuration information, including job name, running environment, etc.
+        :param job_config: Job configuration information. type: ai_flow.workflow.job_config.JobConfig
         """
         super().__init__()
-        self.job_context: JobContext = job_context
         self.job_config = job_config
-        self.platform = job_config.platform
-        self.exec_engine = job_config.engine
-        self.status = State.INIT
-        self.start_time = None
-        self.end_time = None
-        self.uuid = None
-        self.job_name: Text = None
+        self._project_uri: Text = None  # project code uri
+        self._resource_dir: Text = None  # job resource dir
+        self.input_dataset_list: List[DatasetMeta] = []  # the job read dataset information
+        self.output_dataset_list: List[DatasetMeta] = []  # the job write dataset information
 
+    @property
+    def job_name(self):
+        return self.job_config.job_name
+
+    @property
+    def resource_dir(self):
+        return self._resource_dir
+
+    @resource_dir.setter
+    def resource_dir(self, value):
+        self._resource_dir = value
+
+    @property
+    def project_uri(self):
+        return self._project_uri
+
+    @project_uri.setter
+    def project_uri(self, value):
+        self._project_uri = value

@@ -99,10 +99,10 @@ class AIFlowServerConfig(AIFlowConfiguration):
     def get_notification_uri(self):
         return self.get('notification_uri')
 
-    def get_scheduler_config(self):
+    def get_scheduler_service_config(self):
         return self.get('scheduler')
 
-    def set_scheduler_config(self, value):
+    def set_scheduler_service_config(self, value):
         self['scheduler'] = value
 
     def start_meta_service(self):
@@ -123,8 +123,8 @@ class AIFlowServerConfig(AIFlowConfiguration):
         else:
             return True
 
-    def start_scheduling_service(self):
-        if "start_scheduling_service" in self and self['start_scheduling_service'] is False:
+    def start_scheduler_service(self):
+        if "start_scheduler_service" in self and self['start_scheduler_service'] is False:
             return False
         else:
             return True
