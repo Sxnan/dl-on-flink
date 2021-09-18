@@ -23,14 +23,10 @@ import urllib.parse
 from contextlib import contextmanager
 
 import sqlalchemy
-from ai_flow.store.sqlalchemy_store import SqlAlchemyStore
 
-from ai_flow.store.mongo_store import MongoStore
-
-from notification_service.util.db import DBType
-
-from ai_flow.protobuf.message_pb2 import INTERNAL_ERROR
 from ai_flow.endpoint.server.exception import AIFlowException
+from ai_flow.endpoint.server.server_config import DBType
+from ai_flow.protobuf.message_pb2 import INTERNAL_ERROR
 from ai_flow.store import AIFLOW_SQLALCHEMYSTORE_MAX_OVERFLOW, AIFLOW_SQLALCHEMYSTORE_POOL_SIZE
 from ai_flow.store.db.db_engine import DATABASE_ENGINES
 
@@ -127,11 +123,13 @@ def create_db_store(db_uri):
     db_engine = extract_db_engine_from_uri(db_uri)
     if DBType.value_of(db_engine) == DBType.MONGODB:
         username, password, host, port, db = parse_mongo_uri(db_uri)
+        from ai_flow.store.mongo_store import MongoStore
         store = MongoStore(host=host,
                            port=int(port),
                            username=username,
                            password=password,
                            db=db)
     else:
+        from ai_flow.store.sqlalchemy_store import SqlAlchemyStore
         store = SqlAlchemyStore(db_uri)
     return store
