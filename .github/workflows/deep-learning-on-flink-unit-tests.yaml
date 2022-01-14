@@ -6,6 +6,7 @@ on:
   pull_request:
     paths:
       - 'deep-learning-on-flink/**'
+  workflow_dispatch:
 jobs:
   build-and-test:
     runs-on: ubuntu-18.04
