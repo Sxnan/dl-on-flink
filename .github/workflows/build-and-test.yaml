@@ -5,7 +5,10 @@ on:
     branches:
       - '**'
 jobs:
+  precondition:
+    runs-on: ubuntu-20.04
   build-and-test:
+    needs: precondition
     runs-on: ubuntu-18.04
     strategy:
       fail-fast: false
